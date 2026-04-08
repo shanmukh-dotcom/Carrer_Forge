@@ -1,0 +1,243 @@
+/* Layouts */
+.dash-bg-img {
+    background-image: url('/roadmap_bg.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.dashboard-layout {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100vh;
+    background: linear-gradient(to bottom, rgba(10, 10, 10, 0.7), rgba(10, 10, 10, 0.95));
+    z-index: 0;
+}
+
+/* Map specific header */
+.map-container {
+    position: relative;
+    z-index: 10;
+    padding: 3rem 2rem 15rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.map-header {
+    text-align: center;
+    margin-bottom: 5rem;
+}
+
+.map-header .subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.map-header .main-title {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.dot.mastered { background-color: var(--accent-gold); }
+.dot.current { background-color: var(--accent-red); }
+.dot.locked { background-color: #555; }
+
+/* The Tree Structure */
+.constellation-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 2rem;
+}
+
+.map-node-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 120px; /* Vertical gap between nodes */
+    z-index: 5;
+}
+
+/* Zig-zag stagger alignment */
+.map-node-wrapper.node-left {
+    transform: translateX(-150px);
+}
+
+.map-node-wrapper.node-right {
+    transform: translateX(150px);
+}
+
+/* The circular node UI */
+.map-node {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: 2px solid;
+    position: relative;
+    z-index: 10;
+    background-clip: padding-box;
+    transition: all 0.3s ease;
+}
+
+/* Node styles */
+.map-node.mastered {
+    border-color: rgba(203, 160, 82, 0.6);
+    color: var(--accent-gold);
+    box-shadow: 0 0 40px rgba(203, 160, 82, 0.15);
+}
+
+.map-node.current {
+    border-color: rgba(211, 47, 47, 0.8);
+    color: var(--accent-red);
+    box-shadow: 0 0 50px rgba(211, 47, 47, 0.25);
+    cursor: pointer;
+}
+
+.map-node.current:hover {
+    transform: scale(1.05);
+    background-color: rgba(211, 47, 47, 0.05);
+}
+
+.map-node.locked {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.node-label {
+    margin-top: 1.2rem;
+    font-family: var(--font-serif);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.map-node.current + .node-label {
+    color: var(--text-primary);
+}
+
+.play-icon {
+    /* offset visually for play triangle */
+    margin-left: 4px;
+}
+
+/* Connections between nodes */
+.connector {
+    position: absolute;
+    top: 40px; /* center of node */
+    left: 50%;
+    width: 350px; /* Approx hypotenuse distance between a left and right node */
+    height: 2px;
+    transform-origin: 0 50%;
+    z-index: 1;
+}
+
+/* Math: if we are alternating from left(-150) to right(+150), X dist is 300px. 
+ * Vertical margin is 120 + 80(height) = ~200px Y dist. 
+ * Hyp = sqrt(300*200) = 360px. Angle is atan(200/300) = ~33 deg 
+ */
+.node-left .connector {
+    transform: rotate(33deg);
+}
+
+.node-right .connector {
+    /* Connecting from right to left goes negatively horizontally, but HTML draws rightward. 
+     * To draw left/down from right side: rotate approx 147 degrees (-30 offset internally? No, just 147)
+     * Better yet, draw it leftwards: rotate 147 deg */
+    transform: rotate(147deg);
+}
+
+/* Line styles based on mastery */
+.connector.line-mastered {
+    background-color: rgba(211, 47, 47, 0.6); /* Red solid line to current */
+}
+
+.connector.line-future {
+    background-image: linear-gradient(to right, rgba(255,255,255,0.1) 50%, transparent 50%);
+    background-size: 10px 10px;
+    background-repeat: repeat-x;
+    height: 1px;
+}
+
+/* Fixed Bottom Panel */
+.current-technique-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #161616;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    box-shadow: 0 -10px 50px rgba(0,0,0,0.5);
+}
+
+.technique-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.tech-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.tech-title {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+}
+
+.tech-progress {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.continue-btn {
+    padding: 1rem 3rem;
+}
+
+/* Animations */
+.animate-fade-up {
+    animation: fadeUp 0.6s ease forwards;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,48 @@
+.career-forge-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+    position: relative;
+    z-index: 100;
+}
+
+.nav-brand {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    color: var(--accent-red);
+    letter-spacing: 2px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+}
+
+.nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--transition-fast);
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--text-primary);
+}
+
+.nav-links a.active {
+    background-color: rgba(211, 47, 47, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin: -0.5rem -1rem; /* Offset padding */
+}
+
+.nav-icon {
+    font-size: 1rem;
+    opacity: 0.8;
+}

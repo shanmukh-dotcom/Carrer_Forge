@@ -1,0 +1,9 @@
+node_modules/
+frontend/node_modules/
+dist/
+.env
+error.log
+*.txt
+out.txt
+test_output.txt
+.DS_Store

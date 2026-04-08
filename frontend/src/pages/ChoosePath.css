@@ -1,0 +1,181 @@
+.choose-path-container {
+  min-height: 100vh;
+  padding: 6rem 0;
+}
+
+.path-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.path-desc {
+  color: var(--text-secondary);
+}
+
+.custom-input-wrapper {
+  max-width: 800px;
+  margin: 0 auto 3rem auto;
+}
+
+.custom-path-input {
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  background-color: var(--bg-color-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  outline: none;
+  transition: var(--transition-fast);
+}
+
+.custom-path-input:focus {
+  border-color: var(--text-secondary);
+}
+
+.paths-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.path-card {
+  background-color: var(--bg-color-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.path-card:hover {
+  background-color: var(--bg-color-lighter);
+}
+
+.path-card.selected {
+  border-color: var(--accent-red);
+  box-shadow: 0 0 20px rgba(211, 47, 47, 0.15);
+}
+
+.path-card.selected::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  box-shadow: inset 0 0 10px rgba(211, 47, 47, 0.2);
+  pointer-events: none;
+}
+
+.path-icon {
+  background-color: var(--bg-color-lighter);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.path-info h3 {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.path-info p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.action-footer {
+  text-align: center;
+  margin-top: 4rem;
+  padding-bottom: 4rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.start-btn {
+  background-color: #4a1f1f; /* Disabled dark red state */
+  color: #888;
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
+  border-radius: var(--border-radius);
+  font-family: var(--font-serif);
+  transition: var(--transition-fast);
+}
+
+.start-btn.active {
+  background-color: var(--accent-red);
+  color: #fff;
+  box-shadow: 0 0 15px var(--accent-red-glow);
+}
+
+.start-btn.active:hover {
+  transform: translateY(-2px);
+  background-color: #e53935;
+}
+
+/* Step 2 Playlist Styles */
+.playlist-upload-box {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.playlist-input-row {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.playlist-preview {
+  margin-top: 2rem;
+  width: 100%;
+  text-align: left;
+  background: rgba(203, 160, 82, 0.05);
+  border: 1px solid rgba(203, 160, 82, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.playlist-video-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.playlist-video-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.video-index {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.1rem;
+  min-width: 24px;
+}
