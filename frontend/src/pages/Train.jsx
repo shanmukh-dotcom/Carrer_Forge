@@ -73,46 +73,9 @@ const Train = () => {
                throw new Error("Empty response from AI");
            }
        } catch (err) {
-            console.warn("AI summary failed, using fallback:", err);
-            setSummary({
-                summary: [
-                    `Core concepts and fundamentals of ${topic}`,
-                    "Practical applications and real-world use cases",
-                    "Common pitfalls and how to avoid them",
-                    "Best practices used by industry professionals",
-                    "How this connects to and builds on your previous knowledge"
-                ],
-                important_notes: [
-                    `Understanding ${topic} is essential before moving to advanced concepts`,
-                    "Always test your code incrementally to catch issues early",
-                    "Don't skip the fundamentals — they underpin everything else"
-                ],
-                conceptual_questions: [
-                    `Why is ${topic} important in this domain?`,
-                    "When would you choose this approach over alternatives?",
-                    "What are the trade-offs of using this technique?"
-                ],
-                practical_questions: [
-                    `Build a minimal working example of ${topic} from scratch`,
-                    "Modify the example to handle an edge case or error state"
-                ],
-                keywords: [topic, "Best Practices", "Core Concepts", "Applied Learning", "Fundamentals"],
-                mcqs: [
-                    {
-                        question: `What is the primary purpose of ${topic}?`,
-                        options: ["Structure & Layout", "Styling & Design", "Logic & Behavior", "Data Management"],
-                        correctAnswer: "Logic & Behavior",
-                        explanation: `${topic} primarily deals with Logic & Behavior — it defines how things work and interact, not just how they look.`
-                    },
-                    {
-                        question: "Which approach is generally considered best practice in modern development?",
-                        options: ["Top-down monolithic", "Bottom-up procedural", "Component-based architecture", "Copy-paste driven"],
-                        correctAnswer: "Component-based architecture",
-                        explanation: "Component-based architecture promotes reusability, testability, and separation of concerns."
-                    }
-                ],
-                connections: []
-            });
+            console.error("AI summary failed:", err);
+            const apiError = err.response?.data?.error || err.message || "Unknown error";
+            setError(`Analysis failed: ${apiError}`);
        } finally {
            setAnalyzing(false);
        }
@@ -207,17 +170,22 @@ const Train = () => {
                                         <p className="text-secondary" style={{fontSize: '0.9rem'}}>Our AI will fetch the transcript and generate a personalized summary + quiz</p>
                                     </div>
                                 </div>
-                                <button 
-                                    className="primary-btn"
-                                    onClick={handleAnalyze}
-                                    disabled={analyzing}
-                                    style={{padding: '1rem 2.5rem', whiteSpace: 'nowrap'}}
-                                >
-                                    {analyzing 
-                                        ? <><Loader2 className="spinner" size={18}/> Analyzing...</> 
-                                        : <><Brain size={18}/> Summarize Video</>
-                                    }
-                                </button>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                    <button 
+                                        className="primary-btn"
+                                        onClick={handleAnalyze}
+                                        disabled={analyzing}
+                                        style={{padding: '1rem 2.5rem', whiteSpace: 'nowrap', width: '100%'}}
+                                    >
+                                        {analyzing 
+                                            ? <><Loader2 className="spinner" size={18}/> Analyzing...</> 
+                                            : <><Brain size={18}/> Summarize Video</>
+                                        }
+                                    </button>
+                                    <span className="text-secondary" style={{ fontSize: '0.75rem', opacity: 0.6, letterSpacing: '0.02em' }}>
+                                        (This may take a while since this is an MVP)
+                                    </span>
+                                </div>
                             </div>
                         )}
 

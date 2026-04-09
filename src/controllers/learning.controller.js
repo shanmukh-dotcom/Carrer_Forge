@@ -37,7 +37,7 @@ export const analyzeContent = async (req, res) => {
 
     // Only look at concepts from the SAME goal for memory connections
     const pastConcepts = await memoryService.getAllDetailedConcepts(goalId);
-    const aiOutput = await aiService.processTranscript(finalTranscript, pastConcepts);
+    const aiOutput = await aiService.processTranscript(finalTranscript, pastConcepts, topic, goalId);
     
     // Store tagged with goalId so it never bleeds into other goals
     if (aiOutput) {

@@ -20,13 +20,13 @@ const deepgram = new DeepgramClient(process.env.DEEPGRAM_API_KEY);
 export const transcribeYouTubeUrl = async (youtubeUrl) => {
     const tmpDir = os.tmpdir();
     const outputTemplate = path.join(tmpDir, `yt_audio_${Date.now()}`);
-    const outputFile = `${outputTemplate}.mp3`;
+    const outputFile = `${outputTemplate}.m4a`;
 
     try {
         console.log(`[Deepgram] Downloading audio: ${youtubeUrl}`);
 
         // Use python -m yt_dlp (works on Windows where PATH may not include yt-dlp binary)
-        const cmd = `python -m yt_dlp --extract-audio --audio-format mp3 --audio-quality 5 --no-playlist --quiet -o "${outputTemplate}.%(ext)s" "${youtubeUrl}"`;
+        const cmd = `python -m yt_dlp -f "bestaudio[ext=m4a]" --no-playlist --quiet -o "${outputFile}" "${youtubeUrl}"`;
         await execAsync(cmd, { timeout: 180000 }); // 3 min timeout for long videos
 
         // Verify the file was created
@@ -34,24 +34,27 @@ export const transcribeYouTubeUrl = async (youtubeUrl) => {
         const audioBuffer = await fs.readFile(outputFile);
         console.log(`[Deepgram] Audio ready (${(audioBuffer.length / 1024 / 1024).toFixed(1)} MB). Transcribing...`);
 
-        const { result, error } = await deepgram.listen.prerecorded.transcribeFile(
-            audioBuffer,
-            {
-                model: 'nova-2',
-                smart_format: true,
-                language: 'en',
-                detect_language: true,
-                filler_words: false,
-                paragraphs: true,
-            }
-        );
+        const deepgramUrl = 'https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&language=en&detect_language=true&paragraphs=true';
+        const response = await fetch(deepgramUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Token ${process.env.DEEPGRAM_API_KEY}`,
+                'Content-Type': 'audio/m4a'
+            },
+            body: audioBuffer
+        });
 
-        if (error) throw new Error(`Deepgram API error: ${error.message}`);
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`Deepgram API error: ${response.status} ${response.statusText} - ${errText}`);
+        }
+
+        const data = await response.json();
 
         // Extract transcript — prefer paragraph-formatted version
         const transcript =
-            result?.results?.channels?.[0]?.alternatives?.[0]?.paragraphs?.transcript ||
-            result?.results?.channels?.[0]?.alternatives?.[0]?.transcript ||
+            data.results?.channels?.[0]?.alternatives?.[0]?.paragraphs?.transcript ||
+            data.results?.channels?.[0]?.alternatives?.[0]?.transcript ||
             '';
 
         console.log(`[Deepgram] ✅ Transcription done. ${transcript.length} characters`);

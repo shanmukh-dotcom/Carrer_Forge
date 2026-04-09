@@ -3,14 +3,7 @@ import { analyzePrompt, roadmapPrompt, recommendPrompt, testPrompt } from '../ut
 import dotenv from 'dotenv';
 dotenv.config();
 
-let ai;
-try {
-  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here') {
-    ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-  }
-} catch (error) {
-  console.warn("Failed to initialize Google Gen AI.", error);
-}
+// Initialize dynamically per request to ensure fresh .env keys are used
 
 const parseJsonResponse = (text) => {
   try {
@@ -23,12 +16,16 @@ const parseJsonResponse = (text) => {
 };
 
 const callGemini = async (prompt, useProModel = false) => {
-  if (!ai) {
+  dotenv.config({ override: true }); // Force read latest .env immediately
+  
+  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
     throw new Error('AI not configured. Add GEMINI_API_KEY to .env');
   }
   
-  // Use gemini-2.5-pro for deep transcript analysis, flash for lighter tasks
-  const model = useProModel ? 'gemini-2.5-pro-exp-03-25' : 'gemini-2.0-flash';
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  
+  // Forcing gemini-2.5-flash for ALL tasks because free-tier limits on Pro are causing exact 429 Quota Exceeded errors
+  const model = 'gemini-2.5-flash';
 
   const response = await ai.models.generateContent({
     model,
@@ -42,14 +39,14 @@ const callGemini = async (prompt, useProModel = false) => {
   return parseJsonResponse(response.text);
 };
 
-export const processTranscript = async (transcript, pastConcepts) => {
+export const processTranscript = async (transcript, pastConcepts, topic, goal) => {
   console.log(`[AI] Transcript length: ${transcript.length} chars`);
 
   const CHUNK_LIMIT = 18000; // ~4500 words — safe for a single deep analysis call
 
   if (transcript.length <= CHUNK_LIMIT) {
     // Short video — send full transcript in one shot with Pro model
-    return await callGemini(analyzePrompt(transcript, pastConcepts), true);
+    return await callGemini(analyzePrompt(transcript, pastConcepts, topic, goal), true);
   }
 
   // Long video — split into chunks, analyze each, then merge into final output
@@ -62,7 +59,7 @@ export const processTranscript = async (transcript, pastConcepts) => {
   // Analyze each chunk with flash (fast + cheap for partial segments)
   const chunkSummaries = [];
   for (const chunk of chunks) {
-    const result = await callGemini(analyzePrompt(chunk, []), false);
+    const result = await callGemini(analyzePrompt(chunk, [], topic, goal), false);
     if (result) chunkSummaries.push(result);
   }
 
@@ -78,7 +75,7 @@ export const processTranscript = async (transcript, pastConcepts) => {
     ...chunkSummaries.flatMap(c => c.keywords || [])
   ];
 
-  return await callGemini(analyzePrompt(mergedTranscript, mergedPastConcepts), true);
+  return await callGemini(analyzePrompt(mergedTranscript, mergedPastConcepts, topic, goal), true);
 };
 
 export const generateRoadmap = async (goal, skillLevel, time) => {

@@ -14,6 +14,34 @@ const paths = [
   { id: 'cyber', title: 'Cybersecurity', desc: 'The Shadow Guard', icon: <ShieldCheck size={20} color="#cba052" /> },
 ];
 
+const recommendedPlaylists = {
+  frontend: [
+    { title: "Frontend Web Development Full Course", url: "https://www.youtube.com/playlist?list=PLWKjhJtqVAbmMuZ3saqRIBimAKIMYkt0E" },
+    { title: "HTML & CSS for Beginners", url: "https://youtube.com/playlist?list=PLr6-GrHUlVf_ZNmuQSXdS197Oyr1L9sPB" }
+  ],
+  uiux: [
+    { title: "UI/UX Design Full Course", url: "https://www.youtube.com/playlist?list=PLdvOfoe7PXT0ouChAnR1nHlT8BJIo5hP_" },
+    { title: "UX Design Fundamentals", url: "https://youtube.com/playlist?list=PLM-OxsL-wU7Z3sD_A_V0B7mJgX0X9QY_N" }
+  ],
+  ai: [
+    { title: "Machine Learning for Beginners", url: "https://youtube.com/playlist?list=PL9ooVrP1hQOHUfd-g8GUpKI3hHOwM_9Dn" },
+    { title: "Deep Learning Crash Course", url: "https://youtube.com/playlist?list=PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI" }
+  ],
+  backend: [
+    { title: "Backend Web Development Course", url: "https://www.youtube.com/playlist?list=PLWKjhJtqVAbn21gs5UnLhCQ82f923WCgM" },
+    { title: "Python Backend Development", url: "https://youtube.com/playlist?list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH" }
+  ],
+  mobile: [
+    { title: "Mobile App Development Course", url: "https://www.youtube.com/playlist?list=PLTjRvDozrdlxzQet01qZBt-sRG8bbDggv" },
+    { title: "Flutter for Beginners", url: "https://youtube.com/playlist?list=PL4cUxeGkcC9jLYyp2Aoh6hcWuxFDX6PBJ" }
+  ],
+  cyber: [
+    { title: "Cyber Security Full Course", url: "https://www.youtube.com/playlist?list=PLOspHqNVtKADkWLFt9OcziQF7EatuANSY" },
+    { title: "Cybersecurity Fundamentals", url: "https://youtube.com/playlist?list=PLBf0hzazHTGOptlA2AOL1XyP_Z9iQ8hps" }
+  ],
+};
+
+
 const ChoosePath = () => {
   const [step, setStep] = useState(1); // 1 = pick goal, 2 = paste playlist
   const [selectedId, setSelectedId] = useState(null);
@@ -146,6 +174,28 @@ const ChoosePath = () => {
                 Your goal: <strong className="accent-gold">{finalGoal}</strong>
               </p>
             </header>
+
+            {selectedId && recommendedPlaylists[selectedId] && (
+              <div className="recommendations-box">
+                <h3 className="accent-gold mb-4" style={{fontSize: '1.1rem', marginBottom: '1rem'}}>
+                  Recommended for {finalGoal}
+                </h3>
+                <div className="recommendations-grid">
+                  {recommendedPlaylists[selectedId].map((rec, i) => (
+                    <div 
+                      key={i} 
+                      className="rec-card"
+                      onClick={() => {
+                        setPlaylistInput(rec.url);
+                      }}
+                    >
+                      <h4>{rec.title}</h4>
+                      <p>Click to select this path</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="playlist-upload-box">
               <ListVideo size={32} className="accent-red" style={{marginBottom: '1rem'}}/>
