@@ -49,6 +49,7 @@ export const transcribeYouTubeUrl = async (youtubeUrl) => {
             '-f', 'bestaudio[ext=m4a]',
             '--no-playlist',
             '--quiet',
+            '--extractor-args', 'youtube:player_client=android,ios',
             '-o', outputFile
         ]);
 

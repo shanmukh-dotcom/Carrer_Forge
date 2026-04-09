@@ -13,12 +13,20 @@ export const analyzeContent = async (req, res) => {
     let finalTranscript = transcript;
 
     if (youtubeUrl) {
+       // Sanitize YouTube URL to definitively strip &list constraints that break cloud scrapes
+       let cleanYoutubeUrl = youtubeUrl;
+       try {
+           const urlObj = new URL(youtubeUrl);
+           const videoId = urlObj.searchParams.get('v');
+           if (videoId) cleanYoutubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+       } catch (e) {}
+
        // 1. Try Deepgram first — high accuracy audio transcription
        let ytTranscriptError = null;
        if (process.env.DEEPGRAM_API_KEY) {
            console.log('[Controller] Attempting Deepgram transcription...');
            try {
-               finalTranscript = await transcribeYouTubeUrl(youtubeUrl);
+               finalTranscript = await transcribeYouTubeUrl(cleanYoutubeUrl);
            } catch (err) {
                console.error('[Controller] Deepgram/yt-dlp failed:', err);
                ytTranscriptError = `Engine Error: ${err.message || String(err)}`;
@@ -29,7 +37,7 @@ export const analyzeContent = async (req, res) => {
        if (!finalTranscript) {
            console.log('[Controller] Falling back to youtube-transcript...');
            try {
-               const transcriptList = await YoutubeTranscript.fetchTranscript(youtubeUrl);
+               const transcriptList = await YoutubeTranscript.fetchTranscript(cleanYoutubeUrl);
                finalTranscript = transcriptList.map(t => t.text).join(' ');
            } catch (err) {
                return res.status(400).json({ 

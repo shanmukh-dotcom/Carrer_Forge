@@ -19,6 +19,7 @@
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
     "mongoose": "^9.4.1",
+    "youtube-captions-scraper": "^2.0.3",
     "youtube-transcript": "^1.0.6",
     "yt-dlp-wrap": "^2.3.12"
   },
