@@ -42,14 +42,22 @@ export const analyzeContent = async (req, res) => {
                
                if (response.ok) {
                    const data = await response.json();
-                   // Format: Usually an array of {text, start, duration}
-                   if (Array.isArray(data)) {
-                       finalTranscript = data.map(t => t.text).join(' ');
+                   // Format for 'Youtube Transcriptor': data['0'].transcriptionAsText
+                   const entry = data['0'] || data;
+                   if (entry && entry.transcriptionAsText) {
+                       finalTranscript = entry.transcriptionAsText;
                        console.log('[Controller] ✅ RapidAPI transcription successful.');
+                   } else if (Array.isArray(data)) {
+                       finalTranscript = data.map(t => t.text).join(' ');
+                       console.log('[Controller] ✅ RapidAPI transcription successful (Array Format).');
                    }
+               } else {
+                   const errorText = await response.text();
+                   ytTranscriptError = `RapidAPI Http Error: ${response.status} - ${errorText}`;
                }
            } catch (err) {
                console.error('[Controller] RapidAPI failed, falling back:', err.message);
+               ytTranscriptError = `RapidAPI Exception: ${err.message}`;
            }
        }
 
