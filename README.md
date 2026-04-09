@@ -125,6 +125,8 @@ We make sure you remember it, connect it, and can actually use it.**
 ## 🔗 Live Product Links
 - **Backend API**: `https://carrer-forge.onrender.com/api`
 *Note: Make sure to add your Vercel URL here once deployed!*
+https://carrer-forge.vercel.app/ try our app
+
 
 ---
 
