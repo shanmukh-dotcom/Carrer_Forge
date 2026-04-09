@@ -81,11 +81,11 @@ export const transcribeYouTubeUrl = async (youtubeUrl) => {
             '';
 
         console.log(`[Deepgram] ✅ Transcription done. ${transcript.length} characters`);
-        return transcript || null;
+        return transcript;
 
     } catch (err) {
-        console.error('[Deepgram] ❌ Failed:', err.message);
-        return null;
+        console.error(`[Deepgram/yt-dlp] Error:`, err);
+        throw err; // DO NOT swallow the error, throw it so the API route can return it!
     } finally {
         // Clean up temp file
         try { await fs.unlink(outputFile); } catch (_) {}

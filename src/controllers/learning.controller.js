@@ -14,9 +14,15 @@ export const analyzeContent = async (req, res) => {
 
     if (youtubeUrl) {
        // 1. Try Deepgram first — high accuracy audio transcription
+       let ytTranscriptError = null;
        if (process.env.DEEPGRAM_API_KEY) {
            console.log('[Controller] Attempting Deepgram transcription...');
-           finalTranscript = await transcribeYouTubeUrl(youtubeUrl);
+           try {
+               finalTranscript = await transcribeYouTubeUrl(youtubeUrl);
+           } catch (err) {
+               console.error('[Controller] Deepgram/yt-dlp failed:', err);
+               ytTranscriptError = `Engine Error: ${err.message || String(err)}`;
+           }
        }
 
        // 2. Fall back to youtube-transcript (auto-captions) if Deepgram fails
@@ -26,7 +32,9 @@ export const analyzeContent = async (req, res) => {
                const transcriptList = await YoutubeTranscript.fetchTranscript(youtubeUrl);
                finalTranscript = transcriptList.map(t => t.text).join(' ');
            } catch (err) {
-               return res.status(400).json({ error: 'Could not fetch transcript. Make sure captions are enabled on this video.' });
+               return res.status(400).json({ 
+                   error: `Could not fetch transcript. Make sure captions are enabled. [Internal Details]: ${ytTranscriptError || err.message}` 
+               });
            }
        }
     }
