@@ -13,17 +13,49 @@ export const analyzeContent = async (req, res) => {
     let finalTranscript = transcript;
 
     if (youtubeUrl) {
-       // Sanitize YouTube URL to definitively strip &list constraints that break cloud scrapes
-       let cleanYoutubeUrl = youtubeUrl;
+       // Extract clean Video ID for API usage
+       let videoId = null;
        try {
            const urlObj = new URL(youtubeUrl);
-           const videoId = urlObj.searchParams.get('v');
-           if (videoId) cleanYoutubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
-       } catch (e) {}
+           videoId = urlObj.searchParams.get('v');
+       } catch (e) {
+           console.error('[Controller] Invalid YouTube URL format');
+       }
 
-       // 1. Try Deepgram first — high accuracy audio transcription
+       if (!videoId) {
+           return res.status(400).json({ error: 'Invalid YouTube URL provided.' });
+       }
+
+       const cleanYoutubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
+       // 1. Try RapidAPI first — Guaranteed cloud bypass for transcripts
+       if (process.env.RAPIDAPI_KEY) {
+           console.log('[Controller] Attempting RapidAPI transcription...');
+           try {
+               const response = await fetch(`https://youtube-transcriptor.p.rapidapi.com/transcript?video_id=${videoId}&lang=en`, {
+                   method: 'GET',
+                   headers: {
+                       'x-rapidapi-key': process.env.RAPIDAPI_KEY,
+                       'x-rapidapi-host': process.env.RAPIDAPI_HOST || 'youtube-transcriptor.p.rapidapi.com'
+                   }
+               });
+               
+               if (response.ok) {
+                   const data = await response.json();
+                   // Format: Usually an array of {text, start, duration}
+                   if (Array.isArray(data)) {
+                       finalTranscript = data.map(t => t.text).join(' ');
+                       console.log('[Controller] ✅ RapidAPI transcription successful.');
+                   }
+               }
+           } catch (err) {
+               console.error('[Controller] RapidAPI failed, falling back:', err.message);
+           }
+       }
+
+       // 2. Fall back to Deepgram (Audio Extraction) if RapidAPI fails
        let ytTranscriptError = null;
-       if (process.env.DEEPGRAM_API_KEY) {
+       if (!finalTranscript && process.env.DEEPGRAM_API_KEY) {
            console.log('[Controller] Attempting Deepgram transcription...');
            try {
                finalTranscript = await transcribeYouTubeUrl(cleanYoutubeUrl);
@@ -33,9 +65,9 @@ export const analyzeContent = async (req, res) => {
            }
        }
 
-       // 2. Fall back to youtube-transcript (auto-captions) if Deepgram fails
+       // 3. Fall back to native youtube-transcript as a last resort
        if (!finalTranscript) {
-           console.log('[Controller] Falling back to youtube-transcript...');
+           console.log('[Controller] Falling back to native youtube-transcript...');
            try {
                const transcriptList = await YoutubeTranscript.fetchTranscript(cleanYoutubeUrl);
                finalTranscript = transcriptList.map(t => t.text).join(' ');

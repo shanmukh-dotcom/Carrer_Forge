@@ -18,9 +18,11 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
+    "extract-youtube": "^1.0.2",
     "mongoose": "^9.4.1",
     "youtube-captions-scraper": "^2.0.3",
     "youtube-transcript": "^1.0.6",
+    "youtubei.js": "^17.0.1",
     "yt-dlp-wrap": "^2.3.12"
   },
   "devDependencies": {
