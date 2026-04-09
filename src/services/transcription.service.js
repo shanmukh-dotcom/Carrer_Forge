@@ -12,6 +12,24 @@ const { DeepgramClient } = require('@deepgram/sdk');
 const execAsync = promisify(exec);
 const deepgram = new DeepgramClient(process.env.DEEPGRAM_API_KEY);
 
+import YTDlpWrapImport from 'yt-dlp-wrap';
+const YTDlpWrap = YTDlpWrapImport.default || YTDlpWrapImport;
+const ytDlpBinaryPath = path.join(os.tmpdir(), os.platform() === 'win32' ? 'yt-dlp.exe' : 'yt-dlp');
+
+const ensureYtDlp = async () => {
+    try {
+        await fs.access(ytDlpBinaryPath);
+    } catch {
+        console.log("[yt-dlp] Native binary not found. Downloading cross-platform standalone executable...");
+        await YTDlpWrap.downloadFromGithub(ytDlpBinaryPath);
+        if (os.platform() !== 'win32') {
+            await execAsync(`chmod +x "${ytDlpBinaryPath}"`);
+        }
+        console.log("[yt-dlp] Core engine successfully initialized.");
+    }
+    return new YTDlpWrap(ytDlpBinaryPath);
+};
+
 /**
  * Downloads YouTube audio using the system yt-dlp binary,
  * then transcribes it with Deepgram nova-2 for high-accuracy output.
@@ -25,9 +43,14 @@ export const transcribeYouTubeUrl = async (youtubeUrl) => {
     try {
         console.log(`[Deepgram] Downloading audio: ${youtubeUrl}`);
 
-        // Use python -m yt_dlp (works on Windows where PATH may not include yt-dlp binary)
-        const cmd = `python -m yt_dlp -f "bestaudio[ext=m4a]" --no-playlist --quiet -o "${outputFile}" "${youtubeUrl}"`;
-        await execAsync(cmd, { timeout: 180000 }); // 3 min timeout for long videos
+        const ytDlpWrap = await ensureYtDlp();
+        await ytDlpWrap.execPromise([
+            youtubeUrl,
+            '-f', 'bestaudio[ext=m4a]',
+            '--no-playlist',
+            '--quiet',
+            '-o', outputFile
+        ]);
 
         // Verify the file was created
         await fs.access(outputFile);
